@@ -131,13 +131,13 @@ using the "t"race command:
 
 <code>>t
 PC=0a42 A:B=0300 X=0000 SP=f000 CCR=d0(11hInzvc)        [2]
-0a42    ce 0a 7a        ldx  #0a7a      STRDESC
+0a42    ce 0a 7a        ldx  #0a7a      STRDESC</code>
 
->t
+<code>>t
 PC=0a45 A:B=0300 X=0a7a SP=f000 CCR=d0(11hInzvc)        [5]
-0a45    81 03           cmpa #03
+0a45    81 03           cmpa #03</code>
 
->t
+<code>>t
 PC=0a47 A:B=0300 X=0a7a SP=f000 CCR=d4(11hInZvc)        [7]
 0a47    26 2e           bne  2e</code>
 
