@@ -175,7 +175,7 @@ Subroutine: 0000
 PC=0a77 A:B=4243 X=0a7e SP=f000 CCR=f8(11HINzvc)        [148]
 0a77    39              rts</code>
 
-Inspecting memeory again indeed shows that the characters in the string have been reversed.
+Inspecting memory again indeed shows that the characters in the string have been reversed.
 
 <code>>md a7a 20
 0a7a    04 0a 7d 44 43 42 41 ff ff ff ff ff ff ff ff ff  ..}DCBA.........
@@ -183,6 +183,5 @@ Inspecting memeory again indeed shows that the characters in the string have bee
 
 We can now leave the simulator:
 
-<code>>q
-
-D:\Epson HX-20\ASM></code>
+<code>>q</code>
+<code>D:\Epson HX-20\ASM></code>
