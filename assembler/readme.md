@@ -1,4 +1,4 @@
-Useful toolsfor assembler programming for the HX-20
+Useful tools for assembler programming for the HX-20
 
 <b>a09</b> - assembler suitable of assembling 6301 machine language binaries, outputs listings, binaries and srec files<br>
    see https://github.com/Arakula/A09<br>
@@ -8,19 +8,22 @@ Useful toolsfor assembler programming for the HX-20
    see https://github.com/dg1yfe/sim68xx<br>
 
 
-Cross-Assembling for HX-20
-==========================
+Cross-Assembling for the HX-20
+==============================
 While it is possible to use the MONITOR to input machine language programs as HEX codes.
-Alternatively HX-20 based assemblers can be used to create machine language programs.
+Alternatively, HX-20 based assemblers can be used to create machine language programs.
 However, the available editing and debugging functions are somewhat limited and coding
 errors may quickly lead to overwriting important memory locations.
-Such erros usually require reinitialiting the HX-20 and thus lead to a loss of all current programs.
+Such errors usually require re-initializing the HX-20 and thus lead to a loss of all current programs.
 
-Therefore it is desirable to test machine language routines on a PC before actually testing
+Therefore, I found it desirable to test machine language routines on a PC before actually testing
 them on the real hardware.
 
-The following process allows to testing parameter passing, algorithems and returning of results.
+The following process allows me to test parameter passing, algorithms and return of results.
 It does not allow testing procedures which use HX-20 ROM functions or system memory locations, though.
+For this purpose, dummy functions could be added, but so far I did not need that.
+
+My procedure goes like this:
 
 1) Write the assembler routine
    any-text-editor file.asm
@@ -28,15 +31,16 @@ It does not allow testing procedures which use HX-20 ROM functions or system mem
 2) Assemble into machine code, write a LST (for LST2BAS.py) and an SREC file (for sim6301)
    a09 file.asm -Sfile.srec -Lfile.lst
 
-3) Load and test the program with sim6301 (source at https://...)
+3) Load and test the program with sim6301 (source at https://...) This simulator reads files in Motorola's SREC format.
    sim6301.exe file.srec
 
    Note that sim6301 itself provides no HX-20-specific functions. Nevertheless, 
    it is quite useful for the testing algorithms.
    For BASIC-callable USR routines a short pseudo parameter passing stub can be 
    added to simulate accessing BASIC variables before calling the function.
+   One could think of adding symbols and load some ROM fragments for system routines to make the disassembly more readable, though.
 
-4) If the test was successful, translate the listing file into a BASIC program
+5) If the test was successful, translate the listing file without the dummy parameters into a BASIC program
    with DATA statements and a HEX byte loader.
    python LST2BAS.py file.lst > file.bas
 
@@ -44,9 +48,9 @@ It does not allow testing procedures which use HX-20 ROM functions or system mem
 	
 Example: debugging stringrev.asm
 ================================
-This contains BASIC callable USR funtions, so that we have to set up
+This example contains BASIC callable USR functions, so that we have to set up
 some pseudo parameters for testing.
-In case of the string reversal function we have to prepare a string 
+In case of the string reversal function we have to prepare a pseudo string 
 parameter according to the HX-20 manual.
 This and its associated data can be enclosed in conditional IFD blocks,
 so that debugging can be activated by defined a symbol in the assembler
@@ -61,12 +65,11 @@ The simulator is executed by:
 
 <code>D:\Epson HX-20\ASM>sim6301 stringrev.srec</code>
 
-
 Besides producing a SREC file we can also write a SYMBOL file
 "stringrev.sym". This file contains two entries per line: the
-symbol name and its hexadecimal address, spearated by a blank.
+symbol name and its hexadecimal address, separated by a blank.
 sim6301 is not very sophisticated, but at least the additional
-display of the symbol names  when the address is used helps a
+display of the symbol names when the address is used helps a
 bit. In our test case it may contain these lines:
 
 <code>DEBUG_STR 0038
@@ -95,7 +98,7 @@ One can also set any register e.g. PC with the "r" command like "r pc 8000"
 if your code as a different origin. sim6301 also has a command line option
 to read a command file with such presets, if you wish.
 
-We can unassamble memory to make sure that everything is correct.
+We can unassemble memory to make sure that everything was loaded correct.
 
 <code>>u a40 1B
 0a40    86 03           ldaa #03
@@ -142,7 +145,7 @@ PC=0a47 A:B=0300 X=0a7a SP=f000 CCR=d4(11hInZvc)        [7]
 0a47    26 2e           bne  2e</code>
 
 The simulator stops after each instruction so that we can view 
-the currect registers as well as the memory by using the "md" 
+the current registers as well as the memory by using the "md" 
 memory dump command:
 
 <code>>md a7a 20
@@ -151,7 +154,7 @@ memory dump command:
 
 
 The memory dump shows the dummy string descriptor created for debugging
-at 0a7a (1 bte string length fllowed by the 16-bit address of the string in
+at 0a7a (1 byte string length followed by the 16-bit address of the string in
 the string space (here: 0a7d). Looking at the string we read "ABCD".
 
 We can now step through the character interchange loop or, assuming that
@@ -160,7 +163,7 @@ the code is correct, we can also set a breakpoint at the RTS instruction:
 <code>>b a77
 Breakpoint at 0a77 set</code>
 
-List all active breakpoints to mke sure it is really set:
+List all active breakpoints to make sure it is really set:
 
 <code>>b
 Active breakpoints:
