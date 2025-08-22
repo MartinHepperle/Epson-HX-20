@@ -1,0 +1,246 @@
+                      ; a09 device.asm -ldevice.lst
+                      ; python LST2BAS.py device.lst > device.bas
+ 
+                              ; HX-20: Hitachi 6301
+                              OPT H01
+                              OPT NCL
+ 
+                      ; insert below BASIC
+                              ORG     $0A40
+ 
+                      ;
+                      ; A device driver skeleton for the Epson HX-20
+                      ;
+                      ; Implements a simple device "BUF0:" which stores
+                      ; bytes written to it in a ring buffer.
+                      ; Reading from the device returns the bytes written until
+                      ; the buffer is empty.
+                      ; The LOF() function returns the amount of data currently in the buffer.
+                      ; The EOF() function returns 0 if there is something in the buffer.
+                      ;
+                      ; Example
+                      ;
+                      ; 10 REM --- Epson HX-20      ---
+                      ; 20 REM --- M. Hepperle 2024 ---
+                      ; 30 REM --- adjust BASIC starting address
+                      ; 40 MEMSET &HAEF
+                      ; 50 REM --- load the device "BUF0"
+                      ; 60 GOSUB 350
+                      ; 70 REM --- application example
+                      ; 80 OPEN "O",#1,"BUF0:"
+                      ; 90 PRINT #1,"123";
+                      ; 100 PRINT "POS(1)=";POS(1)
+                      ; 110 PRINT #1,"ABC"
+                      ; 120 PRINT #1,"abc";
+                      ; 130 PRINT "POS(1)=";POS(1)
+                      ; 140 CLOSE #1
+                      ; 150 ON ERROR GOTO 240
+                      ; 160 OPEN "I",#1,"BUF0:"
+                      ; 170 PRINT "Buffer size=";LOF(1)
+                      ; 180 FOR I%=1 TO 100
+                      ; 190  C$=INPUT$(1,#1)
+                      ; 200  IF ASC(C$)=13 THEN C$="CR"
+                      ; 210  IF ASC(C$)=10 THEN C$="LF"
+                      ; 220  PRINT "/";C$;
+                      ; 230 NEXT I%
+                      ; 240 CLOSE #1
+                      ; 250 PRINT"/"
+                      ; 260 PRINT "UNLINK BUF0:"
+                      ; 270 INPUT "Y/N";YN$
+                      ; 280 IF YN$<>"Y" THEN GOTO 330
+                      ; 290 IF A%=0 THEN GOTO 330
+                      ; 300 POKE A%,0
+                      ; 310 POKE A%+1,0
+                      ; 320 PRINT "BUF0: at";A%;"removed"
+                      ; 330 END
+                      ; 340 REM --- Hex Code Loader  ---
+                      ; 350 N%=0
+                      ; 360 READ C$
+                      ; 380 IF C$="DONE" THEN 430
+                      ; 390 N%=N%+1 : IF N%=8 THEN PRINT "."; : N%=0
+                      ; 400 C%=VAL("&H"+C$)
+                      ; 410 IF LEN(C$)=4 THEN A%=C% : GOTO 360
+                      ; 420 POKE A%,C% : A%=A%+1 : GOTO 360
+                      ; 430 PRINT
+                      ; 440 REM install device control block in DCB table
+                      ; 450 DCBTAB%=&H0657
+                      ; 460 FOR A%=DCBTAB% TO DCBTAB%+30 STEP 2
+                      ; 470  C%=PEEK(A%)*256+PEEK(A%+1)
+                      ; 480  IF C%=&HA40 THEN GOTO 540
+                      ; 490  IF C%=&H000 THEN GOTO 520
+                      ; 500 NEXT A%
+                      ; 510 IF A%>DCBTAB%+28 THEN GOTO 560 : REM ERROR
+                      ; 520 POKE A%,&H0A : REM HIGH
+                      ; 530 POKE A%+1,&H40 : REM LOW
+                      ; 540 PRINT "BUF0: at";A%;"added"
+                      ; 550 RETURN
+                      ; 560 PRINT "Cannot install BUF0:"
+                      ; 570 STOP
+                      ; 580 DATA 0A40,42,55,46,30,30,0A,5E,0A,5F,0A,60,0A,7C,0A,A0,0A,A3,00
+                      ; 590 DATA 00,00,00,00,00,14,00,80,0A,AF,0A,AF,39,39,FE,0A,5A,BC,0A,5C
+                      ; 600 DATA 27,0F,A6,00,08,8C,0A,EF,26,03,CE,0A,AF,FF,0A,5A,39,86,FF,97
+                      ; 610 DATA F5,39,5F,D7,F5,FE,0A,5C,A7,00,08,8C,0A,EF,26,03,CE,0A,AF,FF
+                      ; 620 DATA 0A,5C,81,0D,27,08,81,0A,27,04,7C,0A,55,39,7F,0A,55,39,D6,F5
+                      ; 630 DATA 39,FC,0A,5C,B3,0A,5A,2A,03,C3,00,40,39,DONE
+                      ; 640 REM --- END
+                      ;
+ 
+                      ; EOFLG   EQU     $00F8           ; EOF flag (Epson manual)
+                      EOFLG   EQU     $00F5           ; EOF flag (J. Wald and system ROM A000-BFFF)
+ 
+                      ; ------------------------------
+                      ; Device Control Block
+ 0A40 42554630        DCB:    FCB     "BUF0"          ; 4 character name
+ 0A44 30                      FCB     $30             ; I/O modes: r/w
+ 0A45 0A5E                    FDB     OPENDEV         ; OPEN routine
+ 0A47 0A5F                    FDB     CLOSEDEV        ; CLOSE routine
+ 0A49 0A60                    FDB     READDEV         ; READ routine
+ 0A4B 0A7C                    FDB     WRITEDEV        ; WRITE routine
+ 0A4D 0AA0                    FDB     EOFDEV          ; EOF routine
+ 0A4F 0AAC                    FDB     LOFDEV          ; LOF routine
+ 0A51 00000000        DEVBUF: FCB     $00,$00,$00,$00 ; for device purposes
+ 0A55 00              COLPOS: FCB     $00             ; column position
+ 0A56 00              MAXCOL: FCB     $00             ; max. column: inf.
+ 0A57 14              PRTTAB: FCB     $14             ; print zone width
+ 0A58 00              LSTTAB: FCB     $00             ; last print zone
+ 0A59 80              WIDTH:  FCB     $80             ; WIDTH not supported
+                      ; ------------------------------
+                      ; max. 64 bytes
+ 0A5A 0AB8            READPT  FDB     BUFFER
+ 0A5C 0AB8            WRITPT  FDB     BUFFER
+ 
+                      ; -----------------------------------------------------------
+                      ; called by OPEN
+                      ; OPEN "I",#1,"BUF:"
+                      ; OPEN "O",#1,"BUF:"
+                      OPENDEV
+                              ; no action
+ 0A5E 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; called by CLOSE
+                      ; CLOSE #1
+                      CLOSEDEV
+                              ; no action
+ 0A5F 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; called e.g. by INPUT$
+                      ; C$=INPUT$(n,#1)
+                      ; read one byte from device
+                      ; return byte in (A) or set EOFLAG to $FF on EOF
+                      READDEV
+ 0A60 FE0A5A                  LDX     READPT          ; get read address
+ 0A63 BC0A5C                  CPX     WRITPT          ; compare with write position
+ 0A66 270F                    BEQ     READ_EOF        ; buffer is empty
+                              
+ 0A68 A600                    LDAA    ,X             ; get byte from buffer
+ 0A6A 08                      INX                     ; increment pointer
+ 0A6B 8C0AF8                  CPX     #BUFEND         ; get address
+ 0A6E 2603                    BNE     READ_1          ; o.k.
+                              ; wrap
+ 0A70 CE0AB8                  LDX     #BUFFER         ; back to start
+                      READ_1
+ 0A73 FF0A5A                  STX     READPT          ; for next read
+ 
+ 0A76 39                      RTS
+ 
+                      READ_EOF
+ 0A77 86FF                    LDAA    #$FF            ; EOF: $FF
+ 0A79 97F5                    STAA    EOFLG           ;
+                              
+ 0A7B 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; called e.g. by PRINT#
+                      ; PRINT# 1,"ABC"
+                      ; write one byte to device
+                      ; (A) byte to write
+                      WRITEDEV
+ 0A7C 5F                      CLRB            ; not at EOF: $00
+ 0A7D D7F5                    STAB    EOFLG   ;
+ 
+ 0A7F FE0A5C                  LDX     WRITPT          ; get current write address
+ 0A82 A700                    STAA    ,X              ; store byte
+ 0A84 08                      INX
+ 0A85 8C0AF8                  CPX     #BUFEND          ; get address
+ 0A88 2603                    BNE     WRITE_1
+ 
+                              ; buffer overflow: wrap
+ 0A8A CE0AB8                  LDX     #BUFFER          ; get start address
+ 
+                      WRITE_1
+ 0A8D FF0A5C                  STX     WRITPT           ; for next write
+                              ; increment or reset POS
+ 0A90 810D                    CMPA    #$0D
+ 0A92 2708                    BEQ     ZERPOS
+ 0A94 810A                    CMPA    #$0A
+ 0A96 2704                    BEQ     ZERPOS
+ 0A98 7C0A55          INCPOS  INC     COLPOS  ; increment column index
+ 0A9B 39                      RTS
+ 0A9C 7F0A55          ZERPOS  CLR     COLPOS  ; reset column index
+ 0A9F 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; called e.g. by EOF(1)
+                      EOFDEV
+ 0AA0 5F                      CLRB                    ; not at EOF
+ 0AA1 FE0A5A                  LDX     READPT          ; get read address
+ 0AA4 BC0A5C                  CPX     WRITPT          ; compare with write position
+ 0AA7 2701                    BEQ     EOF             ; buffer is empty
+ 0AA9 39                      RTS
+                      EOF
+ 0AAA 5A                      DECB                    ; return $FF EOF flag
+ 0AAB 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; called e.g. by LOF(1)
+                      ; return # of bytes in buffer
+ 
+                      ;  [.ABCDE.].      ABCDE not wrapped
+                      ;  [1234567]8      E=end,   behind buffer
+                      ;  [BR....W]E      B=begin, buffer 
+                      ;   W>R: LOF = (W-R) = (7-2) = 5
+                      ;
+                      ;  [E..ABCD].      ABCDE wrapped around
+                      ;  [1234567]8      W write pointer
+                      ;  [BW.R...]E      R read pointer
+                      ;   R>W: LOF = (E-R)+(W-B) = (8-4)+(2-1) =  4 + 1 = 5
+                      ;            = (W-R)+(E-B) = (2-4)+(8-1) = -2 + 7 = 5
+                      ;               W-R is negative 
+                      LOFDEV
+ 0AAC FC0A5C                  LDD     WRITPT          ; get read address
+ 0AAF B30A5A                  SUBD    READPT
+ 0AB2 2A03                    BPL     LOF_1           ; positive
+ 0AB4 C30040                  ADDD    #(BUFEND-BUFFER)
+                      LOF_1   
+ 0AB7 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; the I/O buffer
+ 0AB8 00000000000000  BUFFER  FILL $00,64     ; buffer
+ 0ABF 00000000000000
+ 0AC6 00000000000000
+ 0ACD 00000000000000
+ 0AD4 00000000000000
+ 0ADB 00000000000000
+ 0AE2 00000000000000
+ 0AE9 00000000000000
+ 0AF0 00000000000000
+ 0AF7 00
+                      BUFEND                  ; behind buffer
+                      MEMSET  $*              ; same as BUFEND
+ 
+                              END
+
+SYMBOL TABLE
+    BUFEND 02 0AF8    BUFFER 02 0AB8  CLOSEDEV 02 0A5F    COLPOS 02 0A55
+       DCB 02 0A40    DEVBUF 02 0A51       EOF 02 0AAA    EOFDEV 02 0AA0
+     EOFLG 00 00F5    INCPOS 02 0A98    LOFDEV 02 0AAC     LOF_1 02 0AB7
+    LSTTAB 02 0A58    MAXCOL 02 0A56    MEMSET 02 0AF8   OPENDEV 02 0A5E
+    PRTTAB 02 0A57   READDEV 02 0A60    READPT 02 0A5A    READ_1 02 0A73
+  READ_EOF 02 0A77     WIDTH 02 0A59  WRITEDEV 02 0A7C   WRITE_1 02 0A8D
+    WRITPT 02 0A5C    ZERPOS 02 0A9C
+26 SYMBOLS
+
+0 error(s), 0 warning(s)
