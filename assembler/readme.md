@@ -65,7 +65,7 @@ The simulator is executed by:
 
 <code>D:\Epson HX-20\ASM>sim6301 stringrev.srec</code>
 
-Besides producing a SREC file we can also write a SYMBOL file
+Besides producing an SREC file we can also write a SYMBOL file
 "stringrev.sym". This file contains two entries per line: the
 symbol name and its hexadecimal address, separated by a blank.
 sim6301 is not very sophisticated, but at least the additional
@@ -98,7 +98,7 @@ One can also set any register e.g. PC with the "r" command like "r pc 8000"
 if your code as a different origin. sim6301 also has a command line option
 to read a command file with such presets, if you wish.
 
-We can unassemble memory to make sure that everything was loaded correct.
+We can unassemble memory to make sure that everything has been loaded correctly.
 
 <code>>u a40 1B
 0a40    86 03           ldaa #03
