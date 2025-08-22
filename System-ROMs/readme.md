@@ -2,13 +2,13 @@ Some crude disassembly of some System ROMs.
 
 Global Memory Map
 -----------------
-<code>E000-FFFF -- ROM 1: I/O Routines
-C000-DFFF -- ROM 2: Menu, Monitor
-A000-BFFF -- ROM 3: BASIC 1
-8000-9FFF -- ROM 4: BASIC 2
-6000-7FFF -- ROM 5: Option ROM or 8 KB extension RAM
-4000-5FFF -- unused or 8 KB extension RAM
-0000-3FFF -- 16 KB internal RAM and I/O ports</code>
+* E000-FFFF -- ROM 1: I/O Routines
+* C000-DFFF -- ROM 2: Menu, Monitor
+* A000-BFFF -- ROM 3: BASIC 1
+* 8000-9FFF -- ROM 4: BASIC 2
+* 6000-7FFF -- ROM 5: Option ROM or 8 KB extension RAM
+* 4000-5FFF -- unused or 8 KB extension RAM
+* 0000-3FFF -- 16 KB internal RAM and I/O ports
 
 Notes:
 ------
