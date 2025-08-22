@@ -97,8 +97,7 @@ to read a command file with such presets, if you wish.
 
 We can unassamble memory to make sure that everything is correct.
 
-<code>
-u a40 1B
+<code>>u a40 1B
 0a40    86 03           ldaa #03
 0a42    ce 0a 7a        ldx  #0a7a      STRDESC
 0a45    81 03           cmpa #03
@@ -125,8 +124,7 @@ u a40 1B
 0a72    38              pulx
 0a73    a7 00           staa 00,x
 0a75    20 e3           bra  e3
-0a77    39              rts
-</code>
+0a77    39              rts</code>
 
 Now that everything looks good, we can step through the code by
 using the "t"race command:
