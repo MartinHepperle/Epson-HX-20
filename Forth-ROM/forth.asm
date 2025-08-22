@@ -36,7 +36,7 @@
 ; This means that the modified ROM will not be binary identical 
 ; to the original ROM.
 ;
-; Jowever, if you define the following below, you will obtain 
+; However, if you define the following below, you will obtain 
 ; a binary identical copy of the original ROM:
 ; ROM_CD          EQU JAPAN | V10
 ; ROM_EF          EQU JAPAN | V10
