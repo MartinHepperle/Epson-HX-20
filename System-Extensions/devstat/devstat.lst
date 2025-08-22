@@ -1,0 +1,279 @@
+                      ;
+                      ; A device driver for the Epson HX-20
+                      ;
+                      ; a09 devstat.asm -ldevstat.lst
+                      ; python LST2BAS.py devstat.lst > devstat.bas
+                      ;
+                              ; HX-20: Hitachi 6301
+                         ; a09 options
+                              OPT H01
+                              OPT NCL
+                      ;
+                      ; Implements a simple device "STAT:" which counts
+                      ; the occurrence bytes written to it.
+                      ; Reading from the device returns the occurances in form of high/low byte
+                      ; pairs until all 256 byte pairs have been read.
+                      ; The LOF() function returns always 2 (2 bytes to read).
+                      ; The EOF() function returns 0 if there is something to read, -1 otherwise.
+                      ;
+                      ; Example
+                      ;
+                      ; 10 REM --- Epson HX-20      ---
+                      ; 20 REM --- M. Hepperle 2024 ---
+                      ; 21 REM Installs a device "STAT:".
+                      ; 22 REM Writing to it counts the 
+                      ; 23 REM number of occurrances of
+                      ; 24 REM each character code (0...255).
+                      ; 25 REM Reading returns 256*2 bytes
+                      ; 26 REM (high,low) which represent the
+                      ; 27 REM accumulated number of each character.
+                      ; 28 REM One can use LIST "STAT:" to count
+                      ; 29 REM how often each character occurs.
+                      ; 30 REM --- adjust BASIC starting address
+                      ; 40 MEMSET &HCB3
+                      ; 50 REM --- load the code bytes
+                      ; 60 GOSUB 350
+                      ; 70 REM --- install driver
+                      ; 80 GOSUB 450
+                      ; 90 REM --- application example
+                      ; 100 OPEN "O",#1,"STAT:"
+                      ; 110 FOR I%=1 TO 300
+                      ; 120 PRINT#1,CHR$(0)+"AAABBC"
+                      ; 130 NEXT I%
+                      ; 140 CLOSE #1
+                      ; 145 REM --- entry e.g. after LIST "STAT:"
+                      ; 150 PRINT "Finding maximum..."
+                      ; 160 MX=0
+                      ; 170 OPEN "I",#1,"STAT:"
+                      ; 180 FOR I%=0 TO 255
+                      ; 190  H$=INPUT$(1,#1) : L$=INPUT$(1,#1)
+                      ; 200  Y=ASC(H$)*256+ASC(L$)
+                      ; 210  IF Y>MX THEN MX=Y
+                      ; 220 NEXT I%
+                      ; 230 CLOSE #1
+                      ; 240 GCLS
+                      ; 250 OPEN "I",#1,"STAT:"
+                      ; 260 FOR I%=0 TO 127
+                      ; 270  H$=INPUT$(1,#1) : L$=INPUT$(1,#1)
+                      ; 280  Y%=31*(1-(ASC(H$)*256+ASC(L$))/MX)
+                      ; 290  LINE(I%,31)-(I%,Y%),PSET
+                      ; 300 NEXT I%
+                      ; 310 CLOSE #1
+                      ; 320 SOUND 33,2
+                      ; 330 C$=INPUT$(1)
+                      ; 340 END
+                      ; 350 REM --- Hex Code Loader ---
+                      ; 360 N%=0
+                      ; 370 READ C$
+                      ; 380 IF C$="DONE" THEN 430
+                      ; 390 N%=N%+1 : IF N%=8 THEN PRINT "."; : N%=0
+                      ; 400 C%=VAL("&H"+C$)
+                      ; 410 IF LEN(C$)=4 THEN A%=C% : GOTO 370
+                      ; 420 POKE A%,C% : A%=A%+1 : GOTO 370
+                      ; 430 PRINT
+                      ; 440 RETURN
+                      ; 450 REM --- Device Installer ---
+                      ; 460 DCBTAB%=&H0657
+                      ; 470 FOR A%=DCBTAB% TO DCBTAB%+30 STEP 2
+                      ; 480 C%=PEEK(A%)*256+PEEK(A%+1)
+                      ; 490 IF C%=&H0A40 THEN GOTO 550
+                      ; 500 IF C%=&H0000 THEN GOTO 520
+                      ; 510 NEXT A%
+                      ; 520 IF A%>DCBTAB%+28 THEN GOTO 570
+                      ; 530 POKE A%,&H0A : REM HIGH
+                      ; 540 POKE A%+1,&H40 : REM LOW
+                      ; 550 PRINT "STAT: @";A%;"installed"
+                      ; 560 RETURN
+                      ; 570 PRINT "Cannot install STAT:"
+                      ; 580 STOP
+                      ; 2141 DATA 0A40,53,54,41,54,30,0A,5A,0A,78,0A,79,0A,8F,0A,9F,0A,AB,00
+                      ; 2142 DATA 00,00,00,00,00,14,00,80,B6,06,8A,81,10,27,10,CE,0A,B1,86,FF
+                      ; 2143 DATA 6F,00,6F,01,08,08,4A,81,FF,26,F5,CE,0A,B1,FF,0C,B1,39,39,7F
+                      ; 2144 DATA 00,F5,FE,0C,B1,8C,0C,B1,27,07,A6,00,08,FF,0C,B1,39,7A,00,F5
+                      ; 2145 DATA 39,36,33,4F,05,C3,0A,B1,18,EC,00,F3,0A,AF,ED,00,39,5F,FE,0C
+                      ; 2146 DATA B1,8C,0C,B1,27,01,39,5A,39,CC,00,02,39,00,01,DONE
+                      ;
+ 
+                      ; insert below BASIC
+                                  ORG   $0A40
+ 
+                      EOFLG         EQU   $00F5       ; EOF flag (system ROM A000-BFFF)
+                      ASCFLAG       EQU   $68C        ; 0=binary, 1=ASCII
+                      OPENMODE      EQU   $068A
+                      MODE_INPUT    EQU   $10
+                      MODE_OUTPUT   EQU   $20
+ 
+                      ; ------------------------------
+                      ; device Control Block
+ 0A40 53544154        DCB:    FCB     "STAT"          ; 4 character name
+ 0A44 30                      FCB     $30             ; I/O mode: $01: r, $20: w, $30: r/w
+ 0A45 0A5A                    FDB     OPENDEV         ; OPEN routine
+ 0A47 0A78                    FDB     CLOSEDEV        ; CLOSE routine
+ 0A49 0A79                    FDB     READDEV         ; READ routine
+ 0A4B 0A8F                    FDB     WRITEDEV        ; WRITE routine
+ 0A4D 0A9F                    FDB     EOFDEV          ; EOF routine
+ 0A4F 0AAB                    FDB     LOFDEV          ; LOF routine
+ 0A51 00000000        DEVBUF: FCB     $00,$00,$00,$00 ; used for device purposes
+ 0A55 00              COLPOS: FCB     $00             ; current column position, see POS(#)
+ 0A56 00              MAXCOL: FCB     $00             ; max. column: inf.
+ 0A57 14              PRTTAB: FCB     $14             ; print zone width of “,” separated PRINT output
+ 0A58 00              LSTTAB: FCB     $00             ; last print zone on line
+ 0A59 80              WIDTH:  FCB     $80             ; WIDTH support: $00: yes, $80: no
+                      ; ------------------------------
+ 
+                      ; -----------------------------------------------------------
+                      ; called by OPEN
+                      ; OPEN "I",#1,"STAT:"
+                      ; OPEN "O",#1,"STAT:"
+                      OPENDEV:
+ 0A5A B6068A                  LDAA    OPENMODE        ; opened for "O" or "I"?
+ 0A5D 8110                    CMPA    #MODE_INPUT
+ 0A5F 2710                    BEQ     OPEN_DONE
+                           
+                              ; file opened for output
+                              
+                              ; zero array of 16-bit counters
+ 0A61 CE0AB1                  LDX     #ACCU           ; (X) = address of ACCU
+ 0A64 86FF                    LDAA    #255            ; (A) = count
+                      CLEAR_1:
+ 0A66 6F00                    CLR     0,X             ; zero
+ 0A68 6F01                    CLR     1,X             ; zero
+ 0A6A 08                      INX                     ; increment pointer
+ 0A6B 08                      INX                     ; increment pointer
+ 0A6C 4A                      DECA                    ; count--
+ 0A6D 81FF                    CMPA    #$FF            ; done?
+ 0A6F 26F5                    BNE     CLEAR_1         ; more?
+                                                   
+                      OPEN_DONE:                    
+ 0A71 CE0AB1                  LDX     #ACCU           ; start of array...
+ 0A74 FF0CB1                  STX     IDX             ; ...to pointer
+ 
+ 0A77 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; called by CLOSE
+                      ; CLOSE #1
+                      CLOSEDEV:
+                              ; no action
+ 0A78 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; called e.g. by INPUT$
+                      ; C$=INPUT$(n,#1)
+                      ; read one byte from device
+                      ; return byte in (A) or set EOFLAG to $FF on EOF
+                      READDEV:
+ 
+ 0A79 7F00F5                  CLR     EOFLG           ; not at EOF: $00
+ 
+ 0A7C FE0CB1                  LDX     IDX             ; (X) = address to read
+ 0A7F 8C0CB1                  CPX     #IDX            ; end of array reached?
+ 0A82 2707                    BEQ     AT_EOF   
+ 
+                      NOT_EOF:
+ 0A84 A600                    LDAA    0,X             ; (A) = 8-bit value
+ 0A86 08                      INX
+ 0A87 FF0CB1                  STX     IDX             ; increment to next byte
+ 0A8A 39                      RTS
+                         
+                      AT_EOF:   
+ 0A8B 7A00F5                  DEC     EOFLG           ; EOF: $FF   
+ 0A8E 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; called e.g. by PRINT#
+                      ; PRINT# 1,"ABC"
+                      ; write one byte to device
+                      ; (A) byte to write
+                      WRITEDEV:
+ 
+                              ; convert byte into 16-bit offset
+ 0A8F 36                      PSHA                    ; push (A)   
+ 0A90 33                      PULB                    ; pop to (B)
+ 0A91 4F                      CLRA                    ; (A) high, (B) low
+ 0A92 05                      ASLD                    ; * 2 -> 16-bit offset
+                                                      
+ 0A93 C30AB1                  ADDD    #ACCU           ; (D) = ACCU+(D) = address of 16-bit cell
+ 0A96 18                      XGDX                    ; (X) <> (D)
+                                                      
+ 0A97 EC00                    LDD     0,X             ; get current value
+ 0A99 F30AAF                  ADDD    ONE             ; increment 16-bit value
+ 0A9C ED00                    STD     0,X             ; store new value
+ 
+ 0A9E 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; called e.g. by EOF(1)
+                      ; return in (B) $FF if EOF, else $00
+                      EOFDEV:
+ 0A9F 5F                      CLRB                    ; not at EOF
+ 0AA0 FE0CB1                  LDX     IDX             ; (X) = address to read
+ 0AA3 8C0CB1                  CPX     #IDX            ; end of array reached?
+ 0AA6 2701                    BEQ     EOF_EOF   
+ 0AA8 39                      RTS
+                      EOF_EOF:
+ 0AA9 5A                      DECB                    ; EOF
+ 0AAA 39                      RTS
+                      ; -----------------------------------------------------------
+                      ; called e.g. by LOF(1)
+                      ; return in (D) # of bytes in buffer
+                      LOFDEV:
+ 0AAB CC0002                  LDD     #$0002          ; 
+ 0AAE 39                      RTS
+ 
+                      ; -----------------------------------------------------------
+                      ; the I/O buffer at the end, not necessary to hex-load these trailing bytes
+ 0AAF 0001            ONE:    FCB  $00,$01            ; ONE
+ 0AB1 00000000000000  ACCU:   FILL $00,512            ; accumulator: 256 16-bit words 
+ 0AB8 00000000000000
+ 0ABF 00000000000000
+ 0AC6 00000000000000
+ 0ACD 00000000000000
+ 0AD4 00000000000000
+ 0ADB 00000000000000
+ 0AE2 00000000000000
+ 0AE9 00000000000000
+ 0AF0 00000000000000
+ 0AF7 00000000000000
+ 0AFE 00000000000000
+ 0B05 00000000000000
+ 0B0C 00000000000000
+ 0B13 00000000000000
+ 0B1A 00000000000000
+ 0B21 00000000000000
+ 0B28 00000000000000
+ 0B2F 00000000000000
+ 0B36 00000000000000
+ 0B3D 00000000000000
+ 0B44 00000000000000
+ 0B4B 00000000000000
+ 0B52 00000000000000
+ 0B59 00000000000000
+ 0B60 00000000000000
+ 0B67 00000000000000
+ 0B6E 00000000000000
+ 0B75 00000000000000
+ 0B7C 00000000000000
+ 0B83 00000000000000
+ 0B8A 00000000000000
+ 0B91 00000000000000
+ 0B98 00000000000000
+ 0B9F 00000000000000
+ 0BA6 00000000000000
+ 0BAD 00000000
+ 0CB1 0000            IDX:    FCB  $00,$00            ; index for reading, behind buffer
+                      MEMSET: $*                      ; same as BUFEND, used for MEMSET
+ 
+                              END
+
+SYMBOL TABLE
+      ACCU 02 0AB1   ASCFLAG 00 068C    AT_EOF 02 0A8B   CLEAR_1 02 0A66
+  CLOSEDEV 02 0A78    COLPOS 02 0A55       DCB 02 0A40    DEVBUF 02 0A51
+    EOFDEV 02 0A9F     EOFLG 00 00F5   EOF_EOF 02 0AA9       IDX 02 0CB1
+    LOFDEV 02 0AAB    LSTTAB 02 0A58    MAXCOL 02 0A56    MEMSET 02 0CB3
+ MODE_INPUT 00 0010 MODE_OUTPUT 00 0020   NOT_EOF 02 0A84       ONE 02 0AAF
+   OPENDEV 02 0A5A  OPENMODE 00 068A OPEN_DONE 02 0A71    PRTTAB 02 0A57
+   READDEV 02 0A79     WIDTH 02 0A59  WRITEDEV 02 0A8F
+27 SYMBOLS
+
+0 error(s), 0 warning(s)
