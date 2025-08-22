@@ -1,18 +1,21 @@
 Apocalypse of Hell
-AHOMAIL
-Half a year has passed since the release of the HC-20 handheld computer, but there ar ehardly any sotware (especially games) released. As an HC user, I find it very uninteresting. I understand that it is difficult to make games with a 20 x 4 LCD and CMOS.
-However, asl I continued to work on it, I began to understand how to make games in HC, so I would like to announce it here.
+by AHOMAIL
+
+Half a year has passed since the release of the HC-20 handheld computer, but there are hardly any software (especially games) released. 
+As an HC user, I find it very uninteresting. I understand that it is difficult to make games with a 20 x 4 LCD and CMOS.
+However, as I continued to work on it, I began to understand how to make games in HC, so I would like to announce it here.
 
 Virtal Screen
 The biggest bottleneck when making a game on the HC is the virtual screen.
-Bacause the display is an LCD, there is no VRAM like in normal machines, and the routines in the ROM have not yet been clarified, so you have to write to the virtual screen and then transfer it with BASIC. The top address of the virtual screen was in the December isuue, but there is no need to distinguish between cases like that; it's just written to the two bytes startinf from $0270.
+Because the display is an LCD, there is no VRAM like in normal machines, and the routines in the ROM have not yet been clarified, so you have to write to the virtual screen and then transfer it with BASIC. The top address of the virtual screen was in the December isuue, but there is no need to distinguish between cases like that; it's just written to the two bytes startinf from $0270.
 
 Key Buffer
-There is INKEY$ for real-time key input, bit this is also a bit troublesome.
-The buffer stores up to 8 bytes when an interrupt occurs, so if you create a game using this, it will behave strangely. So if you write the I/O port bit pattern to $20 and read $22, you can achieve the same thing as INP on the PC-8001. However, in this case, BREAK will not work, so when you're done, write $00 to $20. In other words, if the bit is 0, the circuit is open, and if it is 1, it is closed (obviously). For details, please rfer to the circuit diagram.
+There is INKEY$ for real-time key input, but this is also a bit troublesome.
+The buffer stores up to 8 bytes when an interrupt occurs, so if you create a game using this, it will behave strangely. 
+If you write the I/O port bit pattern to $20 and read $22, you can achieve the same thing as INP on the PC-8001. However, in this case, BREAK will not work, so when you're done, write $00 to $20. In other words, if the bit is 0, the circuit is open, and if it is 1, it is closed (obviously). For details, please rfer to the circuit diagram.
 
 Apocalypse of Hell
-Now, let's finally explain the game. The reason why I chose this game is its speed and difficulty. The machine language routines are full of bug fix routines, but the HC.
+Now, let's finally explain the game. The reason why I chose this game is its speed and difficulty. The machine language routines are full of debugging routines, for the HC.
 
 I just want to let you know that I can do this much, so please enter it.
 As for the rules, I (arbitraily) thoight that 1 point per base was too low for a game this difficult, so in the HC version I set it at 10 points per base and 1 point for each step taken, and used 2 bytes for scoring.
@@ -28,7 +31,7 @@ This time, I didn't use any routines in ROM. In other words, I'm runningat the B
 To all HC users across the country, the HC-20 is the best. Let's all release our software together and make the HC a more popular machine!
 
 References
-1) Atsushi Uno, "Apocalypse Now", I/P, December 1980 issue.
+1) Atsushi Uno, "Apocalypse Now", I/O, December 1980 issue.
 2) HC-20 Operation Manual, Epson.
 
 
@@ -186,3 +189,4 @@ References
 2119 DATA 00,40,7F,00,1A
 2120 DATA 21,00,01,01,48 : REM 0C58 ... 0C5C
 2121 DATA DONE
+
