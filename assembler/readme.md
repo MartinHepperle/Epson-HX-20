@@ -4,7 +4,7 @@ Useful tools for assembler programming for the HX-20
    see https://github.com/Arakula/A09<br>
 <b>f9dasm</b> - disassembler with 6301 option<br>
    see https://github.com/Arakula/f9dasm<br>
-<b>sim6301</b> - simulator for 6301, reads SREC files<br>
+<b>sim6301</b> - simulator for 6301, reads SREC files. Slightly adapted presets for application to HX-20 (SP=0A40, PC=0A40, on return level to 0A40),<br>
    see https://github.com/dg1yfe/sim68xx<br>
 
 
