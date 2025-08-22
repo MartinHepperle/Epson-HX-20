@@ -4,3 +4,4 @@ It would be niche to find complete issues of the Japanese Oh!HC magazine for tra
 
 <img src="Oh!HC-#1%20Winter%201982.jpg" width=150 height=250/>
 
+<img src="OhHC-N1-1982.jpg"/>
