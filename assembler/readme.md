@@ -1,6 +1,6 @@
 Useful tools for assembler programming for the HX-20
 
-<b>a09</b> - assembler suitable of assembling 6301 machine language binaries, outputs listings, binaries and srec files<br>
+<b>a09</b> - assembler with 6301 option, outputs listings, binaries and srec files<br>
    see https://github.com/Arakula/A09<br>
 <b>f9dasm</b> - disassembler with 6301 option<br>
    see https://github.com/Arakula/f9dasm<br>
