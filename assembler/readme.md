@@ -54,11 +54,13 @@ source or on the command line.
 
 Assembling and the generation of a Motorola SREC file can then 
 be performed by:
+
 -----------------------------------------------------------------------------
 D:\Epson HX-20\ASM>a09 stringrev.asm  -DDEBUG_STR -Lstringrev.lst -Sstringrev.srec
 -----------------------------------------------------------------------------
 
 The simulator is executed by:
+
 -----------------------------------------------------------------------------
 D:\Epson HX-20\ASM>sim6301 stringrev.srec
 -----------------------------------------------------------------------------
@@ -69,6 +71,7 @@ symbol name and its hexadecimal address, spearated by a blank.
 sim6301 is not very sophisticated, but at least the additional
 display of the symbol names  when the address is used helps a
 bit. In our test case it may contain these lines:
+
 -----------------------------------------------------------------------------
 DEBUG_STR 0038
 EXITSUB 0A77
@@ -103,7 +106,8 @@ to read a command file with such presets, if you wish.
 We can unassamble memory to make sure that everything is correct.
 
 -----------------------------------------------------------------------------
->u a40 1B
+<code>
+u a40 1B
 0a40    86 03           ldaa #03
 0a42    ce 0a 7a        ldx  #0a7a      STRDESC
 0a45    81 03           cmpa #03
@@ -131,6 +135,7 @@ We can unassamble memory to make sure that everything is correct.
 0a73    a7 00           staa 00,x
 0a75    20 e3           bra  e3
 0a77    39              rts
+</code>
 -----------------------------------------------------------------------------
 
 Now that everything looks good, we can step through the code by
