@@ -1,4 +1,4 @@
-Useful tools for assembler programming for the HX-20
+These are the tools which I use for writing assembler programs for the HX-20
 
 <b>a09</b> - assembler with 6301 option, outputs listings, binaries and srec files<br>
    see https://github.com/Arakula/A09<br>
