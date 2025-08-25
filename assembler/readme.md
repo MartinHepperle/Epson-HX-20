@@ -28,7 +28,7 @@ For this purpose, dummy functions could be added, but so far I did not need that
 My procedure goes like this:
 
 1) Write the assembler routine
-   any-text-editor file.asm
+   <code>any-text-editor file.asm</code>
 
 2) Assemble into machine code, write a LST (for LST2BAS.py) and an SREC file (for sim6301)
    a09 file.asm -Sfile.srec -Lfile.lst
