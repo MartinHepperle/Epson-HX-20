@@ -1,12 +1,12 @@
-This is a simple USR function.
+This exaple file contains two simple USR functions.
 USR functions take one single parameter and usually return a result of the same type.
 
-Note that it is posssible to change the type of the return avlue by writing a different type to the floating point accumulator type FPTYP.
+Note that it is posssible to change the type of the return value by writing a different type to the floating point accumulator type field FPTYP.
 
 This example demonstrates
-* passing an integer variable from BASIC and returning the integer result,
-* embedding mutliple USR function in a single machine language module.
+* passing an integer variable from BASIC and returning an integer result,
+* embedding multiple USR functions in a single machine language module.
 
-The assembler module contains two USR functions:
-The first counts the bits in a 16-bit integer, the second rotates the the bits in a 16-bit integer left by 1.
-
+The assembler module contains these two USR functions:
+* count the bits in a 16-bit integer,
+* rotate the the bits in a 16-bit integer left by 1.
