@@ -8,5 +8,5 @@ This example demonstrates
 * embedding multiple USR functions in a single machine language module.
 
 The assembler module contains these two USR functions:
-* count the bits in a 16-bit integer,
-* rotate the the bits in a 16-bit integer left by 1.
+* count the '1' bits in a 16-bit integer,
+* rotate the the bits in a 16-bit integer left by 1, bit 15 ends up in bit 0.
