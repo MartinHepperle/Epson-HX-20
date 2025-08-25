@@ -27,14 +27,14 @@ For this purpose, dummy functions could be added, but so far I did not need that
 
 My procedure goes like this:
 
-1) Write the assembler routine
+1) Write the assembler routine<br>
    <code>any-text-editor file.asm</code>
 
-2) Assemble into machine code, write a LST (for LST2BAS.py) and an SREC file (for sim6301)
-   a09 file.asm -Sfile.srec -Lfile.lst
+2) Assemble into machine code, write a LST (for LST2BAS.py) and an SREC file (for sim6301)<br>
+   <code>a09 file.asm -Sfile.srec -Lfile.lst</code>
 
-3) Load and test the program with sim6301 (source at https://...) This simulator reads files in Motorola's SREC format.
-   sim6301.exe file.srec
+3) Load and test the program with sim6301 (source at https://...) This simulator reads files in Motorola's SREC format.<br>
+   <code>sim6301.exe file.srec</code>
 
    Note that sim6301 itself provides no HX-20-specific functions. Nevertheless, 
    it is quite useful for the testing algorithms.
@@ -42,9 +42,8 @@ My procedure goes like this:
    added to simulate accessing BASIC variables before calling the function.
    One could think of adding symbols and load some ROM fragments for system routines to make the disassembly more readable, though.
 
-5) If the test was successful, translate the listing file without the dummy parameters into a BASIC program
-   with DATA statements and a HEX byte loader.
-   python LST2BAS.py file.lst > file.bas
+5) If the test was successful, translate the listing file without the dummy parameters into a BASIC program with DATA statements and a HEX byte loader.<br>
+   <code>python LST2BAS.py file.lst > file.bas</code>
 
 
 	
