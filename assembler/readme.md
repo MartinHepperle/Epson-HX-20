@@ -31,7 +31,7 @@ My procedure goes like this:
    <code>any-text-editor file.asm</code>
 
 2) Assemble into machine code, write a LST (for LST2BAS.py) and an SREC file (for sim6301)<br>
-   <code>a09 file.asm -Sfile.srec -Lfile.lst</code>
+   <code>a09 file.asm -DDEBUG -Sfile.srec -Lfile.lst</code>
 
 3) Load and test the program with sim6301. This simulator reads files in Motorola's SREC format.<br>
    <code>sim6301.exe file.srec</code>
@@ -42,7 +42,7 @@ My procedure goes like this:
    added to simulate accessing BASIC variables before calling the function.
    One could think of adding symbols and load some ROM fragments for system routines to make the disassembly more readable, though.
 
-5) If the test was successful, translate the listing file without the dummy parameters into a BASIC program with DATA statements and a HEX byte loader.<br>
+5) If the test was successful, translate the listing file without the DEBUG definition (i.e. without the dummy parameters) into a BASIC program with DATA statements and a HEX byte loader.<br>
    <code>python LST2BAS.py file.lst > file.bas</code>
 
 
@@ -60,11 +60,11 @@ source or on the command line.
 Assembling and the generation of a Motorola SREC file can then 
 be performed by:
 
-<code>D:\Epson HX-20\ASM>a09 stringrev.asm  -DDEBUG_STR -Lstringrev.lst -Sstringrev.srec</code>
+<code>a09 stringrev.asm  -DDEBUG_STR -Lstringrev.lst -Sstringrev.srec</code>
 
 The simulator is executed by:
 
-<code>D:\Epson HX-20\ASM>sim6301 stringrev.srec</code>
+<code>sim6301 stringrev.srec</code>
 
 Besides producing an SREC file we can also write a SYMBOL file
 "stringrev.sym". This file contains two entries per line: the
@@ -87,7 +87,7 @@ STRSPACE 0A7D</code>
 After the simulator has loaded the binary, it lists the current
 values of all CPU registers and the first instruction at the current PC.
 
-<code>D:\Epson HX-20\ASM>sim6301.exe stringrev.srec
+<code>sim6301.exe stringrev.srec
 Warning: sp:0000, max:00ff
 PC=0a40 A:B=0000 X=0000 SP=f000 CCR=d0(11hInzvc)        [0]
 0a40    86 03           ldaa #03</code>
@@ -188,4 +188,3 @@ Inspecting memory again indeed shows that the characters in the string have been
 We can now leave the simulator:
 
 <code>>q</code>
-<code>D:\Epson HX-20\ASM></code>
