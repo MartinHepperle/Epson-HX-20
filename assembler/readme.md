@@ -33,7 +33,7 @@ My procedure goes like this:
 2) Assemble into machine code, write a LST (for LST2BAS.py) and an SREC file (for sim6301)<br>
    <code>a09 file.asm -Sfile.srec -Lfile.lst</code>
 
-3) Load and test the program with sim6301 (source at https://...) This simulator reads files in Motorola's SREC format.<br>
+3) Load and test the program with sim6301. This simulator reads files in Motorola's SREC format.<br>
    <code>sim6301.exe file.srec</code>
 
    Note that sim6301 itself provides no HX-20-specific functions. Nevertheless, 
