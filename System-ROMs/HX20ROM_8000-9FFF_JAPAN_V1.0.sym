@@ -1,0 +1,11 @@
+string  0x80B1 KW_END  3
+string  0x80B4 KW_FOR  3
+string  0x80B7 KW_NEXT 4
+string  0x80BB KW_DATA 4
+string  0x80BF KW_DIM  3
+string  0x80C2 KW_DIM  567
+
+string  0x82F9 KW_POINT  5
+string  0x82FE KW_TAPCNT 6
+
+word    0x8015  W1 78

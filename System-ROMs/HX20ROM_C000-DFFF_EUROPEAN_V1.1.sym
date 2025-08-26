@@ -1,0 +1,28 @@
+code 0xD310  CODE
+code 0xDFEE  JUMP_TABLE
+code 0xD77E  MONITOR
+code 0xD7FF  CHROUTP
+code 0xD7B0  CHRCODE
+string 0xD2F7 INIT  17
+
+byte   0xD744  Error_RC  2
+string 0xD746  Error  5
+
+word 0xDF6B   U0_
+word 0xDF6E   U1_
+word 0xDF71   U2_
+word 0xDF74   U3_
+word 0xDF77   U4_
+word 0xDF7A   U5_
+
+word 0xDF8F   PSET_
+word 0xDF92   PGET_
+word 0xDF8C   UNKNOWN_
+
+code 0xD987   PGET
+code 0xD9B8   PGET_DO
+
+code 0xD9E6   PSET
+code 0xD967   PSET_DO
+
+code 0xDAAC   UNKNOWN

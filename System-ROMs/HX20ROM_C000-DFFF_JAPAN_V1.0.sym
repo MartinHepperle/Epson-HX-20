@@ -1,0 +1,10 @@
+string 0xD737   ERROR 5
+string 0xD749   BREAK 5
+string 0xD72C   TRAP  5
+string 0xD73E   PROTECTED 9
+string 0xD733   OK    2
+string 0xD2F7   INIT  17
+code   0xD310	MONITOR
+code   0xD7EF   CHROUTP
+code   0xD7A0   CHRCODE
+code   0xDFEE   JMPTABLE
